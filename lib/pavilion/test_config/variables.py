@@ -345,10 +345,6 @@ index, sub_var) tuple.
                         unresolved_vars[('var', var, idx, key)] = (tree,
                                                                    variables)
 
-        print('unresolved_vars')
-        import pprint
-        pprint.pprint(unresolved_vars)
-
         # unresolved variables form a tree where the leaves should all be
         # resolved variables. This iteratively finds unresolved variables whose
         # references are resolved and resolves them. This should collapse the
@@ -362,13 +358,11 @@ index, sub_var) tuple.
                     if var_key[2] == '*':
                         # If the var references a whole list of items,
                         # make sure all are resolved.
-                        list_matches = [key for key in unresolved_vars
-                                        if (key[:2], key[3]) ==
-                                        (var_key[:2], var_key[3])]
-                        if list_matches:
+                        if [key for key in unresolved_vars
+                                if (key[:2], key[3]) == 
+                                    (var_key[:2], var_key[3])]:
                             break
                     else:
-                        print('var_key', var_key, var_key in unresolved_vars)
                         if var_key[2] is None:
                             var_key = (var_key[0], var_key[1], 0, var_key[3])
 
@@ -377,7 +371,7 @@ index, sub_var) tuple.
                 else:
                     # All variables referenced in uvar are resolvable
                     var_set, var_name, index, sub_var = uvar
-                    print('uvar', uvar, variables)
+
                     try:
                         res_val = transformer.transform(tree)
                     except DeferredError:
@@ -443,10 +437,13 @@ index, sub_var) tuple.
         """
 
         var_set, var, idx, sub_var = self.resolve_key(key)
+        if idx is None:
+            idx = 0
 
-        return ((var_set, var, None, None) in self.deferred or
+        is_def = ((var_set, var, None, None) in self.deferred or
                 (var_set, var, idx, None) in self.deferred or
                 (var_set, var, idx, sub_var) in self.deferred)
+        return is_def
 
     def any_deferred(self, key: Union[str, tuple]) -> bool:
         """Return whether any members of the given variable are deferred."""
@@ -620,21 +617,15 @@ index, sub_var) tuple.
             # Remove this variable from or set of deferred.
             self.deferred.remove((d_var_set, d_var, d_idx, d_subvar))
 
-        import pprint
-        pprint.pprint(self.as_dict()['var'])
-        print('deferred', self.deferred)
         # Now we have to go through the very specifically deferred variables
         # (an artifact of when we resolved variable value references)
         # and resolve them. This will look a lot like resolve_references
-
 
         while self.deferred:
             resolved_any = False
             for def_key in self.deferred.copy():
                 var_set, var, index, sub_var = def_key
                 def_val = self.variable_sets[var_set].get(var, index, sub_var)
-
-                print('def_val', def_key, def_val)
 
                 try:
                     resolved = parsers.parse_text(def_val, self)
@@ -650,8 +641,6 @@ index, sub_var) tuple.
                     "Reference loop in variable resolution for variables: {}."
                     .format(list(def_parsed.keys()))
                 )
-
-        pprint.pprint(self.as_dict()['var'])
 
     def __deepcopy__(self, memodict=None):
         """Deeply copy this variable set manager."""
