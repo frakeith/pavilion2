@@ -345,6 +345,10 @@ index, sub_var) tuple.
                         unresolved_vars[('var', var, idx, key)] = (tree,
                                                                    variables)
 
+        print('unresolved_vars')
+        import pprint
+        pprint.pprint(unresolved_vars)
+
         # unresolved variables form a tree where the leaves should all be
         # resolved variables. This iteratively finds unresolved variables whose
         # references are resolved and resolves them. This should collapse the
@@ -362,17 +366,23 @@ index, sub_var) tuple.
                                         if (key[:2], key[3]) ==
                                         (var_key[:2], var_key[3])]
                         if list_matches:
-                            continue
+                            break
                     else:
+                        print('var_key', var_key, var_key in unresolved_vars)
                         if var_key[2] is None:
-                            var_key = (var_key[0], var_key[1], 0, var_key[2])
+                            var_key = (var_key[0], var_key[1], 0, var_key[3])
 
                         if var_key in unresolved_vars:
                             break
                 else:
                     # All variables referenced in uvar are resolvable
                     var_set, var_name, index, sub_var = uvar
-                    res_val = transformer.transform(tree)
+                    print('uvar', uvar, variables)
+                    try:
+                        res_val = transformer.transform(tree)
+                    except DeferredError:
+                        res_val = None
+
                     if res_val is None:
                         # One or more of the variables is deferred, so we can't
                         # resolve this now. Mark it as deferred.
@@ -610,30 +620,38 @@ index, sub_var) tuple.
             # Remove this variable from or set of deferred.
             self.deferred.remove((d_var_set, d_var, d_idx, d_subvar))
 
+        import pprint
+        pprint.pprint(self.as_dict()['var'])
+        print('deferred', self.deferred)
         # Now we have to go through the very specifically deferred variables
         # (an artifact of when we resolved variable value references)
         # and resolve them. This will look a lot like resolve_references
-        def_parsed = {key: parsers.parse_text(self[key], self) for key in
-                      self.deferred}
 
-        while def_parsed:
+
+        while self.deferred:
             resolved_any = False
-            for key, p_val in def_parsed.items():
-                for var in p_val.variables:
-                    if self.is_deferred(var):
-                        break
-                else:
-                    # This variable can be resolved.
-                    self._set_value(key, p_val.resolve(self))
-                    self.deferred.remove(key)
-                    del def_parsed[key]
-                    resolved_any = True
+            for def_key in self.deferred.copy():
+                var_set, var, index, sub_var = def_key
+                def_val = self.variable_sets[var_set].get(var, index, sub_var)
+
+                print('def_val', def_key, def_val)
+
+                try:
+                    resolved = parsers.parse_text(def_val, self)
+                except DeferredError:
+                    continue
+
+                self._set_value(def_key, resolved)
+                self.deferred.remove(def_key)
+                resolved_any = True
 
             if not resolved_any:
                 raise VariableError(
                     "Reference loop in variable resolution for variables: {}."
                     .format(list(def_parsed.keys()))
                 )
+
+        pprint.pprint(self.as_dict()['var'])
 
     def __deepcopy__(self, memodict=None):
         """Deeply copy this variable set manager."""
