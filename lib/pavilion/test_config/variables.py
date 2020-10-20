@@ -53,7 +53,7 @@ and something goes wrong."""
         if self.sub_var is not None:
             key.append(self.sub_var)
 
-        key = '.'.join(key)
+        key = '.'.join(str(k) for k in key)
 
         return "Error processing variable key '{}': {}" \
             .format(key, self.base_message)

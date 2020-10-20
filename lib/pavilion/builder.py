@@ -782,8 +782,9 @@ class TestBuilder:
         do_copy = set()
         copy_globs = self._config.get('copy_files', [])
         for copy_glob in copy_globs:
-            do_copy.update(glob.glob(self.path.as_posix() + '/' + copy_glob,
-                                     recursive=True))
+            final_glob = self.path.as_posix() + '/' + copy_glob
+            blob = glob.glob(final_glob, recursive=True)
+            do_copy.update(blob)
 
         def maybe_symlink_copy(src, dst):
             """Makes a symlink from src to dst, unless the file is in
