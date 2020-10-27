@@ -23,7 +23,7 @@ Config Directories
 Pavilion looks its main ``pavilion.yaml`` config in the following hierarchy
 and uses the first one it finds.
 
--  The user's `~/.pavilion` directory.
+-  The user's `~/.pavilion` directory. (if enabled)
 -  The directory given via the ``PAV_CONFIG_DIR`` environment variable.
 -  The Pavilion lib directory **(don't put configs here)**
 

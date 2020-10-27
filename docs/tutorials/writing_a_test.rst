@@ -10,26 +10,25 @@ Preliminary Steps
 -----------------
 
 1.  `Install Pavilion on a Cluster <../install.html>`__
-2.  Setup your environment for Pavilion.
+2.  Create a Pavilion config directory. It will need these subdirectories:
+
+    - ``tests/``
+    - ``test_src/``
+    - ``hosts/``
+    - ``modes/``
+    - ``plugins/``
+
+3.  Setup your environment for Pavilion.
 
     - We usually do this with a module file (lmod or env modules).
 
       - Set PAV_CONFIG_DIR to your Pavilion config directory.
       - Add the pavilion ``bin/`` directory to your path.
-3.  Run ``pav show config`` to verify that pavilion is basically working.
-4.  `Configure Pavilion <../config.html>`__
-5.  Create your ``~/.pavilion`` directory.
+4.  Run ``pav show config`` to verify that pavilion is basically working.
+5.  Create a Pavilion config file (``pavilion.yaml``) in your config
+    directory. It can be empty; see :ref:`config`.
 
-Where to Write Your Tests
--------------------------
-
-When writing a test, you should generally work out of your ``~/.pavilion/tests``
-and ``~/.pavilion/test_src`` directories. When your test is ready, then move it
-to the general Pavilion config directories. This generally helps keep your
-production Pavilion config directories clean of half finished and broken tests.
-
-Any tests found in your ``~/.pavilion`` directory will take precedence over
-those found in the general Pavilion config directory.
+**Almost everything we do will be relative to your Pavilion config directory.**
 
 Writing a Test
 --------------
@@ -38,13 +37,12 @@ Writing a Test
 
 We're going to use the `supermagic`_ hpc test as our example.
 
-
 1. Download an archive of the source.
 
-   - Put it in ``~/.pavilion/test_src``
-2. Create a file called ``~/.pavilion/tests/supermagic.yaml``
+   - Put it in ``test_src/``
+2. Create a file called ``tests/supermagic.yaml``
 
-My ``~/.pavilion`` directory structure now looks like this:
+My config directory structure now looks like this:
 
 .. code-block:: text
 
@@ -71,7 +69,7 @@ add to it:
         build:
             # Pavilion will auto-extract this archive. The extracted directory
             # will be your build directory.
-            source_location: supermagic-master.zip
+            source_path: supermagic-master.zip
 
             # Each of these commands is added as a separate line to the
             # build script.
@@ -108,8 +106,8 @@ information on what and where the problem is in your yaml file.
 Test Building
 ~~~~~~~~~~~~~
 
-The combined cryptographic hashes of the build source and build script will
-be the build name in <working_dir>/builds.
+The combined cryptographic hashes of the build source and build script
+(among other things) will be the build name in <working_dir>/builds.
 
 For instance, if our build hash is 'ac3251801d831', we'll end up with a
 build directory like this:
@@ -179,8 +177,7 @@ So let's modify the build section of our test config to load those modules.
 Note:
   Module loading works with lmod and environment modules (tmod), and
   assumes the module environment is set up automatically on login. This is
-  covered in more details in the
-  `install instructions <../install.html>`__.
+  covered in more details in :ref:`install`.
 
 .. code-block:: yaml
 
