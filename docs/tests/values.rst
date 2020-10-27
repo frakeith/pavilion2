@@ -77,7 +77,7 @@ recursively to each element. Operations between two lists require that the
 lists be equal length, and apply the operation between each corresponding pair
 of items.
 
-.. code-block::
+.. code-block:: yaml
 
     list_expr_test:
         variables:

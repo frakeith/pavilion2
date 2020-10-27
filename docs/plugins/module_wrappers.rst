@@ -87,6 +87,7 @@ Result Parser Class
 You first must define a Yapsy plugin class, as per the basic instructions.
 
 .. code-block:: python
+
     # This module has the module_wrapper base plugin class
     import pavilion.module_wrapper as module_wrapper
 

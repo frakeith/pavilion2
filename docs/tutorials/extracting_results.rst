@@ -83,7 +83,7 @@ Use ``pav status`` to find your test's id, and then run
 In addition, the test produced per-node output files. These are named
 ``<node_name>.out`` (ie 'node0045.out'), and look like this inside:
 
-.. code-block::
+.. code-block:: text
 
     Node 5 reporting sir!
     Parameters are optimal!
@@ -239,7 +239,7 @@ which is why we have to check for both it and the line before it.
 But we probably don't want a list, we want these values stored under a
 reasonably named key. Let's make that happen:
 
-.. code-block::
+.. code-block:: yaml
 
     example:
         ...
